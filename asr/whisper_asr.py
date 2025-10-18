@@ -5,7 +5,8 @@ from audio_utils import save_audio_to_file
 import os
 from typing import Dict, Any
 
-from client import Client
+
+# from client import Client
 
 
 class WhisperASR(ASRInterface):
@@ -14,7 +15,7 @@ class WhisperASR(ASRInterface):
         model_name = kwargs.get("model_name", "openai/whisper-large-v3")
         self.asr_pipeline = pipeline("automatic-speech-recognition", model=model_name)
 
-    async def transcribe(self, client: Client) -> Dict[str, Any]:
+    async def transcribe(self, client) -> Dict[str, Any]:
         filepath = await save_audio_to_file(client.scratch_buffer, client.get_file_name())
 
         if client.config["language"] is not None:

@@ -11,7 +11,7 @@ from buffering_strategy.buffering_strategy_interface import BufferingStrategyInt
 
 import logging
 
-from client import Client
+# from client import Client
 from vad.vad_interface import VADInterface
 
 logger = logging.getLogger("ray.serve")
@@ -20,7 +20,7 @@ logger.setLevel(logging.DEBUG)
 
 class SilenceAtEndOfChunk(BufferingStrategyInterface):
 
-    def __init__(self, client: Client, kwargs):
+    def __init__(self, client, kwargs):
         self.client = client
 
         self.chunk_length_seconds = os.environ.get("BUFFERING_CHUNK_LENGTH_SECONDS")

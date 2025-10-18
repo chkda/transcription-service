@@ -8,7 +8,8 @@ from typing import Dict, Any
 from ray import serve
 
 from audio_utils import save_audio_to_file
-from client import Client
+
+# from client import Client
 
 language_codes = {
     "afrikaans": "af",
@@ -123,7 +124,7 @@ class FasterWhisperASR(ASRInterface):
         model_size = kwargs.get("model_size", "large-v3")
         self.asr_pipeline = WhisperModel(model_size, device="cuda", compute_type="float16")
 
-    async def transcribe(self, client: Client) -> Dict[str, Any]:
+    async def transcribe(self, client) -> Dict[str, Any]:
         filepath = await save_audio_to_file(client.scratch_buffer, client.get_file_name())
 
         language = None if client.config["language"] is None else language_codes.get(client.config["language"].lower())

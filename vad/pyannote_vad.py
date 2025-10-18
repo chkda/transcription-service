@@ -3,7 +3,7 @@ from pyannote.audio import Model
 from pyannote.audio.pipelines import VoiceActivityDetection
 
 from audio_utils import save_audio_to_file
-from client import Client
+# from client import Client
 from vad.vad_interface import VADInterface
 
 from typing import List, Any
@@ -33,7 +33,7 @@ class PyannoteVAD(VADInterface):
         self.vad_pipeline = VoiceActivityDetection(segmentation=self.model)
         self.vad_pipeline.instantiate(pyannote_args)
 
-    async def detect_activity(self, client: Client) -> List[Any]:
+    async def detect_activity(self, client) -> List[Any]:
         filepath = await save_audio_to_file(client.scratch_buffer, client.get_file_name())
         vad_results = self.vad_pipeline(filepath)
         os.remove(filepath)
