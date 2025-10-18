@@ -20,7 +20,7 @@ logger.setLevel(logging.DEBUG)
 
 class SilenceAtEndOfChunk(BufferingStrategyInterface):
 
-    def __init__(self, client, kwargs):
+    def __init__(self, client, **kwargs):
         self.client = client
 
         self.chunk_length_seconds = os.environ.get("BUFFERING_CHUNK_LENGTH_SECONDS")
