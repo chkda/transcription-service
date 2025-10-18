@@ -65,14 +65,15 @@ class SilenceAtEndOfChunk(BufferingStrategyInterface):
         last_segment_should_end_before = ((len(self.client.scratch_buffer) / (
                 self.client.sampling_rate * self.client.sampling_width)) - self.chunk_offset_seconds)
 
-        if vad_results[-1]["end"] < last_segment_should_end_before:
-            transcription = await asr_handle.transcribe.remote(client=self.client)
-            self.client.increment_file_counter()
-            if transcription["text"] != "":
-                end = time.time()
-                transcription["processing_time"] = end - start
-                json_transcription = json.dumps(transcription)
-                await websocket.send_text(json_transcription)
-            self.client.scratch_buffer.clear()
+        # if vad_results[-1]["end"] < last_segment_should_end_before:
+        transcription = await asr_handle.transcribe.remote(client=self.client)
+        self.client.increment_file_counter()
+        if transcription["text"] != "":
+            end = time.time()
+            transcription["processing_time"] = end - start
+            print(transcription["text"])
+            json_transcription = json.dumps(transcription)
+            await websocket.send_text(json_transcription)
+        self.client.scratch_buffer.clear()
 
         self.processing_flag = False
