@@ -63,7 +63,7 @@ class SilenceAtEndOfChunk(BufferingStrategyInterface):
             return
 
         last_segment_should_end_before = ((len(self.client.scratch_buffer) / (
-                self.client.sampling_rate * self.client.samples_width)) - self.chunk_offset_seconds)
+                self.client.sampling_rate * self.client.sampling_width)) - self.chunk_offset_seconds)
 
         if vad_results[-1]["end"] < last_segment_should_end_before:
             transcription = await asr_handle.transcribe.remote(client=self.client)
