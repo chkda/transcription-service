@@ -40,7 +40,7 @@ class SilenceAtEndOfChunk(BufferingStrategyInterface):
         self.processing_flag = False
 
     def process_audio(self, web_socket: WebSocket, vad_handle: DeploymentHandle, asr_handle: DeploymentHandle):
-        chunk_length_in_bytes = self.chunk_length_seconds * self.client.sampling_rate * self.client.samples_width
+        chunk_length_in_bytes = self.chunk_length_seconds * self.client.sampling_rate * self.client.sampling_width
 
         if len(self.client.buffer) > chunk_length_in_bytes:
             if self.processing_flag:
