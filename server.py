@@ -73,4 +73,4 @@ entrypoint = TranscriptionServer.bind(FasterWhisperASR.bind(), PyannoteVAD.bind(
 
 if __name__ == "__main__":
     ray.init()
-    serve.run(entrypoint, name="transcription-service", route_prefix="/", host="0.0.0.0", port=7777)
+    serve.run(entrypoint, name="transcription-service", route_prefix="/")
