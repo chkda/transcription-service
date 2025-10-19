@@ -41,7 +41,13 @@ async def test_transcription(audio_file_path: str, uri="ws://localhost:8000/", l
 
     try:
         print(f"\nConnecting to {uri}...")
-        async with websockets.connect(uri) as websocket:
+        # Increase ping/pong timeout to prevent keepalive errors during slow processing
+        async with websockets.connect(
+                uri,
+                ping_interval=20,  # Send ping every 20 seconds
+                ping_timeout=60,  # Wait up to 60 seconds for pong
+                close_timeout=10  # Wait 10 seconds when closing
+        ) as websocket:
             print("✓ Connected")
 
             # Send config
@@ -69,6 +75,7 @@ async def test_transcription(audio_file_path: str, uri="ws://localhost:8000/", l
             print(f"\nSending {total_chunks} chunks (1 second each)...")
 
             transcriptions = []
+            all_audio_sent = asyncio.Event()
 
             async def send_audio():
                 for i in range(0, len(audio_data), chunk_size):
@@ -80,11 +87,17 @@ async def test_transcription(audio_file_path: str, uri="ws://localhost:8000/", l
                     await asyncio.sleep(1.0)  # Real-time delay
 
                 print(f"✓ All audio sent")
+                all_audio_sent.set()
 
             async def receive_responses():
-                try:
-                    while True:
-                        response = await asyncio.wait_for(websocket.recv(), timeout=5.0)
+                last_response_time = asyncio.get_event_loop().time()
+
+                while True:
+                    try:
+                        # Increase timeout for slow CPU processing
+                        response = await asyncio.wait_for(websocket.recv(), timeout=20.0)
+                        last_response_time = asyncio.get_event_loop().time()
+
                         result = json.loads(response)
 
                         print(f"\n{'=' * 60}")
@@ -102,8 +115,15 @@ async def test_transcription(audio_file_path: str, uri="ws://localhost:8000/", l
 
                         transcriptions.append(result)
 
-                except asyncio.TimeoutError:
-                    print("\nNo more responses")
+                    except asyncio.TimeoutError:
+                        # If all audio is sent and we haven't received anything in 20s, exit
+                        if all_audio_sent.is_set():
+                            print("\nNo more responses - timeout after all audio sent")
+                            break
+                        else:
+                            # Still sending, keep waiting
+                            print("\nStill waiting for responses...")
+                            continue
 
                 return transcriptions
 
@@ -111,12 +131,9 @@ async def test_transcription(audio_file_path: str, uri="ws://localhost:8000/", l
             send_task = asyncio.create_task(send_audio())
             recv_task = asyncio.create_task(receive_responses())
 
-            await send_task
-
-            print("\nWaiting for final transcriptions...")
-            await asyncio.sleep(6)  # Wait longer for processing
-
+            # Wait for both tasks
             results = await recv_task
+            await send_task
 
             print(f"\n{'=' * 60}")
             print(f"SUMMARY")

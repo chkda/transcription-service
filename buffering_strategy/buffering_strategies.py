@@ -65,6 +65,7 @@ class SilenceAtEndOfChunk(BufferingStrategyInterface):
         last_segment_should_end_before = ((len(self.client.scratch_buffer) / (
                 self.client.sampling_rate * self.client.sampling_width)) - self.chunk_offset_seconds)
 
+        logger.info(f"Len of buffer: {len(self.client.scratch_buffer)}")
         logger.info(f"Last segment end: {vad_results[-1]['end']}")
         logger.info(f"Should end before: {last_segment_should_end_before}")
         logger.info(f"Condition met: {vad_results[-1]['end'] < last_segment_should_end_before}")
