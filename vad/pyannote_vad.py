@@ -1,4 +1,5 @@
 import os
+import torch
 from pyannote.audio import Model
 from pyannote.audio.pipelines import VoiceActivityDetection
 
@@ -30,6 +31,7 @@ class PyannoteVAD(VADInterface):
                                    {"onset": 0.5, "offset": 0.5, "min_duration_on": 0.3, "min_duration_off": 0.3})
 
         self.model = Model.from_pretrained(model_name, use_auth_token=auth_token)
+        self.model.to(torch.device("cpu"))
         self.vad_pipeline = VoiceActivityDetection(segmentation=self.model)
         self.vad_pipeline.instantiate(pyannote_args)
 

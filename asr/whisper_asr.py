@@ -12,8 +12,8 @@ from typing import Dict, Any
 class WhisperASR(ASRInterface):
 
     def __init__(self, **kwargs):
-        model_name = kwargs.get("model_name", "openai/whisper-large-v3")
-        self.asr_pipeline = pipeline("automatic-speech-recognition", model=model_name)
+        model_name = kwargs.get("model_name", "openai/whisper-tiny")
+        self.asr_pipeline = pipeline("automatic-speech-recognition", model=model_name, device="cpu")
 
     async def transcribe(self, client) -> Dict[str, Any]:
         filepath = await save_audio_to_file(client.scratch_buffer, client.get_file_name())

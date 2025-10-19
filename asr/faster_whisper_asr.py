@@ -116,13 +116,13 @@ language_codes = {
 
 
 @serve.deployment(
-    ray_actor_options={"num_gpus": 1},
+    ray_actor_options={"num_cpus": 1},
 )
 class FasterWhisperASR(ASRInterface):
 
     def __init__(self, **kwargs):
-        model_size = kwargs.get("model_size", "large-v3")
-        self.asr_pipeline = WhisperModel(model_size, device="cuda", compute_type="float16")
+        model_size = kwargs.get("model_size", "tiny")
+        self.asr_pipeline = WhisperModel(model_size, device="cpu", compute_type="float32")
 
     async def transcribe(self, client) -> Dict[str, Any]:
         filepath = await save_audio_to_file(client.scratch_buffer, client.get_file_name())
@@ -140,7 +140,7 @@ class FasterWhisperASR(ASRInterface):
         result = {
             "language": info.language,
             "language_probability": info.language_probability,
-            "text": ' '.join([s.text.strip() for s in segments]),
+            "text": ' '.join([s.text.strip() for s in output]),  # Use 'output' instead of 'segments'
             "words": [
                 {"word": w.word, "start": w.start, "end": w.end, "probability": w.probability} for w in flattened_words
             ],

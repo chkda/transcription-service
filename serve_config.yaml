@@ -1,0 +1,69 @@
+# Ray Serve Configuration File
+# This file defines the deployment configuration for the transcription service
+
+# Proxy Location: Where to deploy Ray Serve's HTTP proxies
+# Options: EveryNode | HeadOnly | NoServer
+# - EveryNode: Deploy HTTP proxy on every node in the cluster (recommended for production)
+# - HeadOnly: Deploy HTTP proxy only on the head node
+# - NoServer: Don't deploy any HTTP proxies (for programmatic access only)
+proxy_location: EveryNode
+
+# HTTP Options: Configure the HTTP server settings
+http_options:
+  # Host: The network interface to bind to
+  # - 0.0.0.0: Listen on all available network interfaces (allows external connections)
+  # - 127.0.0.1 or localhost: Listen only on localhost (local connections only)
+  host: 0.0.0.0
+
+  # Port: The port number for the HTTP server
+  port: 8000
+
+  # Location: Same as proxy_location (deprecated, use proxy_location instead)
+  # location: EveryNode
+
+  # Num CPUs: Number of CPUs to reserve for each HTTP proxy
+  # Default is 0 (no CPU reservation)
+  # num_cpus: 0
+
+# Applications: List of Ray Serve applications to deploy
+applications:
+  - name: transcription-service
+
+    # Route Prefix: The base URL path for this application
+    # "/" means the app is available at http://host:port/
+    # "/api" would make it available at http://host:port/api/
+    route_prefix: /
+
+    # Import Path: Python module path to the application entrypoint
+    # Format: module_name:variable_name
+    # Points to the 'entrypoint' variable in server.py
+    import_path: server:entrypoint
+
+    # Runtime Environment (optional): Specify dependencies and environment settings
+    # runtime_env:
+    #   working_dir: "."
+    #   pip: ["fastapi", "ray[serve]"]
+
+    # Deployments (optional): Fine-tune individual deployment settings
+    # deployments:
+    #   - name: TranscriptionServer
+    #     num_replicas: 1  # Number of replica instances
+    #     max_concurrent_queries: 100  # Max concurrent requests per replica
+    #     ray_actor_options:
+    #       num_cpus: 1  # CPUs per replica
+    #       num_gpus: 0  # GPUs per replica
+    #
+    #   - name: FasterWhisperASR
+    #     num_replicas: 1
+    #     ray_actor_options:
+    #       num_gpus: 1  # Allocate GPU for ASR model
+    #
+    #   - name: PyannoteVAD
+    #     num_replicas: 1
+    #     ray_actor_options:
+    #       num_gpus: 1  # Allocate GPU for VAD model
+
+# Logging Config (optional): Configure Ray Serve logging
+# logging_config:
+#   encoding: TEXT  # Options: TEXT | JSON
+#   log_level: INFO  # Options: DEBUG | INFO | WARNING | ERROR
